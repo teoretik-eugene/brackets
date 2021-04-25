@@ -2,205 +2,119 @@
 #include <stdlib.h>
 #include <locale.h>
 
-
 int main(int argc, char *argv[])
 {
     setlocale( LC_ALL,"Russian" );
-    FILE *input;    // РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ РїСЂРѕРІРµСЂРєРё
-    if((input = fopen(argv[1], "r"))==NULL){
-        printf("ERROR\n");
+    /*Открытие и проверка аргументов: */
+    FILE *text;
+    if((text = fopen(argv[1], "r"))==NULL){
+        printf("ERROR IN OPENING FILE\n");
+        exit(1);
+    }
+    if(argv[2]==NULL){
+        printf("ERROR IN ARG 2\n");
         exit(1);
     }
 
-    int ch;     // РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ С„Р°Р№Р»Р°
-    printf("Р’РІРµРґРµРЅРЅС‹Р№ Р°СЂРіСѓРјРµРЅС‚: \n");
-    if(!argv[2]){
-        printf("Error in bracket-argument\n\n");
-    }
-    else{
-        printf(argv[2]);
-        printf("\n");
-    }
-    printf("РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ: \n");
-        int br=0;   // РџРµСЂРµРјРµС‰РµРЅРёРµ РїРѕ СЃС‚СЂРѕРєРµ
-        while (argv[2][br]!='\0'){
+    /*Создадим массив символов, состоящий из скобок разных типов*/
 
-            switch(argv[2][br]){
-            // РџРѕС‡РµРјСѓ fig_open = 32????
+    /*Посчитаем общее количество скобок*/
+    int count_brackets = 0, ch;
+    while((ch=getc(text))!=EOF){
+        if(ch=='"'){
+            do{
+                ch=getc(text);
+            }while(ch!='"');
+        }
+        if(ch=='{' || ch=='}' || ch=='(' || ch==')' || ch=='[' || ch==']')
+            count_brackets++;
+    }
+    rewind(text);
 
-            /*РџСЂРѕРІРµСЂРєР° РЅР° С„РёРіСѓСЂРЅС‹Рµ СЃРєРѕР±РєРё*/
+    char *string_br = (char *) malloc(count_brackets+1);//Выделяем под массив память
+
+    /*Запишем в массив все скобки, за исключением содержания в кавычках*/
+    int i = 0;
+    while((ch=getc(text))!=EOF){
+        if(ch=='"'){
+            do{
+                ch=getc(text);
+            }while(ch!='"');
+        }
+        if(ch=='{' || ch=='}' || ch=='(' || ch==')' || ch=='[' || ch==']'){
+            string_br[i] = ch;
+            i++;
+        }
+    }
+    rewind(text);
+    string_br[i]='\0';
+    printf("%s", string_br);printf("\n");   // Вывод массива символов на экран
+
+    printf("Предупреждения: \n");
+    /*Проходимся по аргументу скобок*/
+    int br = 0;
+    while(argv[2][br]!='\0'){
+        /*Начинается анализ скобок в аргументе*/
+        switch(argv[2][br]){
+
+            /*Проверка фигурных скобок*/
             case '{':
-                rewind(input);
-                int fig_open = 0, fig_close = 0, count_brackets = 0;
-                while((ch=getc(input))!=EOF){
-                    if(ch=='"'){            // РџСЂРѕРІРµСЂРєР° РЅР° РєР°РІС‹С‡РєРё
-                        do{
-                            ch=getc(input);
-                        }while(ch!='"');
-                    }
-                    if(ch=='[' || ch==']' || ch=='(' || ch==')')
-                        count_brackets++;
-
-                    if(ch=='{'){
+                rewind(text);
+                int fig_open = 0, fig_close = 0;
+                /*Проверка на количество*/
+                int j=0;
+                while(string_br[j]!='\0'){
+                    if(string_br[j]=='{')
                         fig_open++;
-                        count_brackets++;
-                    }
-                    if(ch=='}'){
+
+                    if(string_br[j]=='}')
                         fig_close++;
-                        count_brackets++;
-                    }
+                    j++;
                 }
-                //printf("%d", fig_open); printf("\n");
-                //printf("%d", fig_close); printf("\n");
                 if(fig_open > fig_close){
-                    printf("Р›РёС€РЅРёРµ {\n");
+                    printf("Лишние {\n");
                     break;
                 }
-                else{
-                    if(fig_open < fig_close){
-                        printf("Р›РёС€РЅРёРµ }\n");
+                if(fig_open < fig_close){
+                    printf("Лишние }\n");
+                    break;
+                }
+                /*
+                Если нет лишних открытых или лишних закрытых скобок
+                то начинается проверка на пересечение
+                */
+                j=0;
+                while(string_br[j]!='\0'){
+                    if(string_br[j]=='}' && string_br[j-1]=='('){
+                        printf("Пересечение типа: (}");
                         break;
                     }
+                    if(string_br[j]=='}' && string_br[j-1]=='['){
+                        printf("Пересечение типа: [}");
+                        break;
+                    }
+                    j++;
                 }
-                char *string = (char*) malloc(count_brackets+1);    // РЈР¶ РїРµСЂРµРґРµР»Р°Р№ С‚РѕРіРґР°..
-                rewind(input);                                    // ..string РЅР° fig
-                int j = 0;
-                while((ch=getc(input))!=EOF){
-                    if(ch=='{'){
-                        string[j]='{';
-                        j++;
-                    }
-                    if(ch=='('){
-                        string[j]='(';
-                        j++;
-                    }
-                    if(ch=='['){
-                        string[j]='[';
-                        j++;
-                    }
-                    if(ch==')'){
-                        string[j]=')';
-                        j++;
-                    }
-                    if(ch==']'){
-                        string[j]=']';
-                        j++;
-                    }
-                    if(ch=='}' && (string[j-1]!='(') && (string[j-1]!='[')){
-                        string[j]='}';
-                        j++;
-                    }
-                    else{
-                        if(ch == '}' && string[j-1] == '('){
-                            printf("РџРµСЂРµСЃРµС‡РµРЅРёРµ С‚РёРїР°: (} РІ {}\n");
-                            break;
-                        }
-                        if(ch == '}' && string[j-1] == '['){
-                            printf("РџРµСЂРµСЃРµС‡РµРЅРёРµ С‚РёРїР°: [} РІ {})\n");
-                            break;
-                        }
-                    }
-                }
-                free(string);
-                rewind(input);
-                break;
+            break;
 
-
-            /*РџСЂРѕРІРµСЂРєР° РЅР° РєСЂСѓРіР»С‹Рµ СЃРєРѕР±РєРё*/
             case '(':
-                // РР·РЅР°С‡Р°Р»СЊРЅРѕ С‚СѓС‚ Р±С‹Р»Рѕ int m = 0, РЅРѕ РІС‹РґР°РІР°Р»Рѕ РѕС€РёР±РєСѓ
-                rewind(input);
-                int circ_count = 0, circ_open = 0, circ_close = 0;
-                while((ch=getc(input))!=EOF){
-                    if(ch=='"'){
-                        do{
-                            ch=getc(input);
-                        }while(ch!='"');
-                    }
 
-                    if (ch == '{' || ch == '}' || ch == '[' || ch == ']')
-                        circ_count++;
+            break;
 
-                    if(ch == '('){
-                        circ_open++;
-                        circ_count++;
-                    }
-                    if(ch == ')'){
-                        circ_close++;
-                        circ_count++;
-                    }
-                }
-                if(circ_open > circ_close){
-                    printf("Р›РёС€РЅРёРµ (\n");
-                    break;
-                }
-                if(circ_close > circ_open){
-                    printf("Р›РёС€РЅРёРµ )\n");
-                    break;
-                }
 
-                int m = 0;          // РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ СЃРёРјРІРѕР»СЊРЅРѕРіРѕ РјР°СЃСЃРёРІР°
-                char *circ = (char*) malloc(circ_count+1);
-                rewind(input);
-                while((ch=getc(input))!=EOF){
-
-                    if(ch=='('){
-                        circ[m]='(';        // РћС€РёР±РєР°, ( РІ РєРѕРЅС†Рµ
-                        m++;
-                    }
-                    if(ch=='{'){
-                        circ[m]='{';
-                        m++;
-                    }
-                    if(ch=='['){
-                        circ[m]='[';
-                        m++;
-                    }
-                    if(ch=='}'){
-                        circ[m]='}';
-                        m++;
-                    }
-                    if(ch==']'){
-                        circ[m]=']';
-                        m++;
-                    }
-                    if(ch==')' && (circ[m-1]!='{') && (circ[m-1]!='[')){
-                        circ[m]=')';
-                        m++;
-                    }
-                    else{
-                        if(ch == ')' && circ[m-1] == '{'){
-                            printf("РџРµСЂРµСЃРµС‡РµРЅРёРµ С‚РёРїР°: {) РІ ()\n");
-                            break;
-                        }
-                        if(ch == ')' && circ[m-1] == '['){
-                            printf("РџРµСЂРµСЃРµС‡РµРЅРёРµ С‚РёРїР°: [) РІ ()\n");
-                            break;
-                        }
-                    }
-                }
-                free(circ);
-                rewind(input);
-                break;
-
-            case '[':
-                while((ch=getc(input))!=EOF){
-                rewind(input);
-                break;
-            }
         }
+
         br++;
     }
 
-    rewind(input);      // РўСѓС‚ РЅРµ Р±С‹Р»Рѕ rewind Рё РІС‹РґР°РІР°Р»Рѕ РѕС€РёР±РєСѓ
-
-    /*РћС‚РѕР±СЂР°Р¶РµРЅРёРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ С„Р°Р№Р»Р°*/
-    printf("\n-------------------------------\n");
-    printf("РСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р»: \n");
-    while((ch = getc(input))!=EOF){
+    printf("\n");
+    rewind(text);
+    printf("\nИсходный файл: \n");
+    while((ch=getc(text))!=EOF){
         printf("%c", ch);
     }
-    rewind(input);
+
+
 
     return 0;
 }
