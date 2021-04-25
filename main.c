@@ -86,24 +86,103 @@ int main(int argc, char *argv[])
                 j=0;
                 while(string_br[j]!='\0'){
                     if(string_br[j]=='}' && string_br[j-1]=='('){
-                        printf("Пересечение типа: (}");
+                        printf("Пересечение типа: (}\n");
                         break;
                     }
                     if(string_br[j]=='}' && string_br[j-1]=='['){
-                        printf("Пересечение типа: [}");
+                        printf("Пересечение типа: [}\n");
                         break;
                     }
                     j++;
                 }
             break;
 
-            case '(':
+            /*
+                Аналогично работают и остальные проверки для других скобок
+            */
 
+            /*Проверка на круглые скобки*/
+            case '(':
+                rewind(text);
+                int circ_open = 0, circ_close = 0;
+                //
+                /*Проверка на количество*/
+                int c=0;
+                while(string_br[c]!='\0'){
+                    if(string_br[c]=='(')
+                        circ_open++;
+
+                    if(string_br[c]==')')
+                        circ_close++;
+                    c++;
+                }
+                if(circ_open > circ_close){
+                    printf("Лишние (\n");
+                    break;
+                }
+                if(circ_open < circ_close){
+                    printf("Лишние )\n");
+                    break;
+                }
+                /*
+                Если нет лишних открытых или лишних закрытых скобок
+                то начинается проверка на пересечение
+                */
+                c=0;
+                while(string_br[c]!='\0'){
+                    if(string_br[c]==')' && string_br[c-1]=='{'){
+                        printf("Пересечение типа: {)\n");
+                        break;
+                    }
+                    if(string_br[c]==')' && string_br[c-1]=='['){
+                        printf("Пересечение типа: [)\n");
+                        break;
+                    }
+                    c++;
+                }
             break;
 
+            /*Проверка на квадратные скобки*/
+            case '[':
+                rewind(text);
+                int square_open = 0, square_close = 0;
+                /*Проверка на количество*/
+                int s=0;
+                while(string_br[s]!='\0'){
+                    if(string_br[s]=='[')
+                        square_open++;
+
+                    if(string_br[s]==']')
+                        square_close++;
+                    s++;
+                }
+                if(square_open > square_close){
+                    printf("Лишние [\n");
+                    break;
+                }
+                if(square_open < square_close){
+                    printf("Лишние ]\n");
+                    break;
+                }
+                /*
+                Если нет лишних открытых или лишних закрытых скобок
+                то начинается проверка на пересечение
+                */
+                s=0;
+                while(string_br[s]!='\0'){
+                    if(string_br[s]==']' && string_br[s-1]=='{'){
+                        printf("Пересечение типа: {]\n");
+                        break;
+                    }
+                    if(string_br[s]==']' && string_br[s-1]=='('){
+                        printf("Пересечение типа: (]\n");
+                        break;
+                    }
+                    s++;
+                }
+            break;
 
         }
-
         br++;
     }
 
