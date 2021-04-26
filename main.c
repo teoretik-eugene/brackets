@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
         printf("ERROR IN ARG 2\n");
         exit(1);
     }
+    printf("Введенная строка-аргумент:\n");
+    printf("%s", argv[2]);printf("\n");
 
     /*Создадим массив символов, состоящий из скобок разных типов*/
 
@@ -48,6 +50,7 @@ int main(int argc, char *argv[])
     }
     rewind(text);
     string_br[i]='\0';
+    printf("\n");
     printf("%s", string_br);printf("\n");   // Вывод массива символов на экран
 
     printf("Предупреждения: \n");
@@ -181,9 +184,8 @@ int main(int argc, char *argv[])
                     s++;
                 }
             break;
-
         }
-        br++;
+        br++;   // Осуществляет перемещение по argv[2]
     }
 
     printf("\n");
@@ -192,8 +194,5 @@ int main(int argc, char *argv[])
     while((ch=getc(text))!=EOF){
         printf("%c", ch);
     }
-
-
-
     return 0;
 }
