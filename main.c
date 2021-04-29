@@ -96,6 +96,14 @@ int main(int argc, char *argv[])
                         printf("Пересечение типа: [}\n");
                         break;
                     }
+                    if(string_br[j]=='{' && string_br[j+1]==')'){   //Добавлен случаи пересечения
+                        printf("Пересечение типа: {)\n");       // типа {] и {)
+                        break;
+                    }
+                    if(string_br[j]=='{' && string_br[j+1]==']'){
+                        printf("Пересечение типа: {]\n");
+                        break;
+                    }
                     j++;
                 }
             break;
@@ -141,6 +149,14 @@ int main(int argc, char *argv[])
                         printf("Пересечение типа: [)\n");
                         break;
                     }
+                    if(string_br[c]=='(' && string_br[c+1]==']'){
+                        printf("Пересечение типа: (]\n");
+                        break;
+                    }
+                    if(string_br[c]=='(' && string_br[c+1]=='}'){
+                        printf("Пересечение типа: (}\n");
+                        break;
+                    }
                     c++;
                 }
             break;
@@ -179,6 +195,14 @@ int main(int argc, char *argv[])
                     }
                     if(string_br[s]==']' && string_br[s-1]=='('){
                         printf("Пересечение типа: (]\n");
+                        break;
+                    }
+                    if(string_br[s]=='[' && string_br[s+1]=='}'){   //Добавлены случаи
+                        printf("Пересечение типа: [}\n");       // пересечения типа [} и [)
+                        break;
+                    }
+                    if(string_br[s]=='[' && string_br[s+1]==')'){
+                        printf("Пересечение типа: [)\n");
                         break;
                     }
                     s++;
