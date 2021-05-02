@@ -208,7 +208,67 @@ int main(int argc, char *argv[])
 
                 /* Проверка квадратных скобок */
         case '[':
-            // остается тут дописать
+            j=0;
+            int s = 0, n = 0;
+            char *square_string = (char *) malloc(square_bracket+1);
+            while(string_brackets[j]!='\0'){
+                if(string_brackets[j] == '['){
+                    square_string[s] = '[';
+                    s++;
+                    n++;
+                }
+
+                if(string_brackets[j] == ']' && square_string[s-1] != '['){
+                    square_string[n] = ']';
+                    --s;
+                    n++;
+                }
+
+                if(string_brackets[j] == ']' && square_string[s-1] == '['){
+                    square_string[s-1] = ' ';
+                    --s;
+                }
+                j++;
+            }
+
+            s = 0; int err_s = 0; // err служит для фиксации ошибки
+            for(int i = 0; square_string[i]!='\0'; i++){
+                if(square_string[i] == '['){
+                    printf("Не хватает закрывающей ]\n");
+                    err_s++;
+                    break;// думал break остановит case
+                }
+                if(square_string[i] == ']'){
+                    printf("Не хватает открывающей [\n");
+                    err_s++;
+                    break;
+                }
+            }
+            if(err_s>=1)
+                break;  // останавливает, если есть проблема с открывающимися или закрываюшимися
+                        // скобками
+
+            /* Проверка на пересечение с другими скобками */
+            j=0;
+            while(string_brackets[j]!='\0'){
+                    if(string_brackets[j]==']' && string_brackets[j-1]=='('){
+                        printf("Пересечение типа: (]\n");
+                        break;
+                    }
+                    if(string_brackets[j]==']' && string_brackets[j-1]=='{'){
+                        printf("Пересечение типа: {]\n");
+                        break;
+                    }
+                    if(string_brackets[j]=='[' && string_brackets[j+1]=='}'){
+                        printf("Пересечение типа: [}\n");
+                        break;
+                    }
+                    if(string_brackets[j]=='[' && string_brackets[j+1]==')'){
+                        printf("Пересечение типа: [)\n");
+                        break;
+                    }
+                    j++;
+            }
         break;
 
         }
